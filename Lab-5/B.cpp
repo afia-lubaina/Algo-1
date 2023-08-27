@@ -72,7 +72,7 @@ int main() {
                curr[u][v]=w_of_uv;
             }
 
-            floydWarshall(graph,n); 
+            floydWarshall(curr,n); 
             int s=0; 
 
             for (size_t i = 0; i < n; i++)
