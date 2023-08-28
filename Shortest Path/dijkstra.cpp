@@ -1,63 +1,68 @@
 #include<bits/stdc++.h>
 using namespace std;
-typedef pair<int, int> pii;  
-#define ff first
+typedef pair<int, int> pii;
+#define pb push_back
 #define ss second
+#define ff first
+vector<vector<pii>>graph;
+int start,n,m;
+vector<int>dis;
+const int INF = 1e9;
 
-vector<vector<pii>> graph;
-int start;
-vector<int> distances;
+void dijkstra(){
 
-void dijkstra() {
-    int n = graph.size();
-    distances.assign(n, INT_MAX);
-    distances[start] = 0;
+    start = 0;
+    dis[0]=0; 
 
-    priority_queue<pii, vector<pii>, greater<pii>> min_heap;  // Min-heap
+    priority_queue<pii,vector<pii>, greater<pii>> min_heap;
 
-    min_heap.push(make_pair(0, start));
+    min_heap.push({0,0}); 
 
-    while (!min_heap.empty()) {
-        int current_dis = min_heap.top().ff;
-        int current_node = min_heap.top().ss;
+    while(!min_heap.empty()){
+        int u=min_heap.top().ss;
         min_heap.pop();
 
-        if (current_dis > distances[current_node]) {
-            continue;
-        }
+        for(auto it: graph[u]){
 
-        for (const auto& v : graph[current_node]) {
-            int neighbor_node = v.ss;
-            int weight = v.ff;
-            int distance = current_dis + weight;
-            if (distance < distances[neighbor_node]) {
-                distances[neighbor_node] = distance;
-                min_heap.push(make_pair(distance, neighbor_node));
+            int v=it.ss;
+            int w=it.ff; 
+            if(dis[v]>dis[u]+w){
+                dis[v]=dis[u]+w; 
+                min_heap.push({dis[v],v});
             }
         }
     }
+    
+
+
 }
 
-int main() {
+int main(){
 
-    int n, m; // n is number of nodes, m is number of edges
-    cin >> n >> m;
+    cin>>n>>m;
     graph.resize(n);
+    dis.assign(n,INF);
+     
+    for (size_t i = 0; i < m; i++)
+    {
+       int u,w,v; 
+       cin>>u>>v>>w; 
+       graph[u].pb({w,v});
 
-    for (size_t i = 0; i < m; i++) {
-        int u, v, w; 
-        cin >> u >> v >> w; 
-        graph[u].push_back({w, v});
     }
     
-    int start_node = 0;
-    distances.resize(n); 
+
     dijkstra();
 
-    cout << "Shortest distances from node " << start_node << ":" << endl;
-    for (int i = 0; i < n; ++i) {
-        cout << "To node " << i << ": " << distances[i] << endl;
-    }
+    cout<<"0: 0"<<"\n";
 
-    return 0;
+    for (size_t i = 1; i < n; i++)
+    {
+       if(dis[i]!=INF)
+             cout<<i<<": "<<dis[i]<<"\n";
+       else 
+             cout<<i<<": "<<-1<<"\n";
+    }
+    
+    
 }
