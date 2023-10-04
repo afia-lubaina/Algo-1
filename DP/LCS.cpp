@@ -50,10 +50,23 @@ void LCS(string X, string Y) {
 }
 
 int main() {
-    string X = "abba";
-    string Y = "ababababa";
+    string X = "AJKEQSLOBSROFGZ";
+    string Y = "OVGURWZLWVLUXTH";
 
     LCS(X, Y);
 
     return 0;
 }
+
+
+// std::string mainString = "Hello, World!";
+// std::string substring = "World";
+
+// size_t found = mainString.find(substring);
+
+// if (found != std::string::npos) {
+//     std::cout << "Substring found at position " << found << std::endl;
+// } else {
+//     std::cout << "Substring not found" << std::endl;
+// }
+
