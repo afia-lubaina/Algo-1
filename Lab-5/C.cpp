@@ -1,61 +1,97 @@
-#include <iostream>
-#include <vector>
-
+#include <bits/stdc++.h>
 using namespace std;
-
 const int INF = 1e9;
+typedef pair<int, int> pii;
+#define ss second
+#define ff first
 
-void floydWarshall(vector<vector<int>>& graph, int n) {
-    for (int k = 0; k < n; ++k) {
-        for (int i = 0; i < n; ++i) {
-            for (int j = 0; j < n; ++j) {
-                if (graph[i][k] != INF && graph[k][j] != INF)
-                    graph[i][j] = min(graph[i][j], graph[i][k] + graph[k][j]);
+struct Edge {
+    int u, v, w;
+};
+
+vector<Edge> edges;
+vector<vector<pair<int, int>>> graph;
+vector<int> dist;
+
+void dijkstra(int src, int n){
+
+    dist.assign(n,INF);
+    dist[src]=0; 
+
+    priority_queue<pii,vector<pii>, greater<pii>> min_heap;
+
+    min_heap.push({0,src}); 
+
+    while(!min_heap.empty()){
+        int u=min_heap.top().ss;
+        min_heap.pop();
+
+        for(auto it: graph[u]){
+
+            int v=it.ss;
+            int w=it.ff; 
+            if(dist[v]>dist[u]+w){
+                dist[v]=dist[u]+w; 
+                min_heap.push({dist[v],v});
             }
         }
     }
+
 }
 
-bool hasNegativeCycle(const vector<vector<int>>& graph, int n) {
-    for (int i = 0; i < n; ++i) {
-        if (graph[i][i] < 0) {
-            return true;
+
+vector<int> bellmanFord(int n, int src) {
+    vector<int>h(n,INF);
+    h[src] =0;
+    int V = h.size();
+    h[src] = 0;
+
+    for (int i = 0; i < V - 1; ++i) {
+        for (const Edge& e : edges) {
+            if (h[e.u] != INF && h[e.u] + e.w < h[e.v]) {
+                h[e.v] = h[e.u] + e.w;
+            }
         }
     }
-    return false;
+    return h;
 }
 
 int main() {
-    int n, m; // n = number of nodes, m = number of edges
+    int n, m;
     cin >> n >> m;
+    graph.resize(n + 1);
+    edges.resize(m + 1);
+    dist.assign(n + 1, INF);
 
-    vector<vector<int>> graph(n, vector<int>(n, INF));
-
-    for (int i = 0; i < n; ++i) {
-        graph[i][i] = 0; // Distance from a node to itself is 0
-    }
-
-    for (int i = 0; i < m; ++i) {
-        int u, v, w; // Edge from u to v with weight w
+    for (size_t i = 0; i < m; i++) {
+        int u, v, w;
         cin >> u >> v >> w;
-        graph[u][v] = w;
+        edges.push_back({u, v, w});
+        graph[u].push_back({w, v});
     }
 
-    floydWarshall(graph, n);
+    for (size_t i = 1; i < n; i++) {
+        Edge e;
+        e.u=n;
+        e.v=i; e.w=0;
+        edges.push_back(e);
+        graph[n].push_back({0, i});
+    }
 
-    if (hasNegativeCycle(graph, n)) {
-        cout << "not possible" << endl;
-    } else {
+    vector<int>h=bellmanFord(n+1,n);
 
-        // Printing the shortest distances
-        for (int i = 0; i < n; ++i) {
-            for (int j =0; j < n; ++j) {
-                if(i==j)continue; 
-                if (graph[i][j] == INF)
-                    cout << i << " to " << j << ": infinity" << "\n";
-                else
-                    cout << i << " to " << j << ": " << graph[i][j] << "\n";
+    for(auto &edge: edges){
+        edge.w+=h[edge.u]-h[edge.v];
+    }
+
+    for(int u=0;u<n; u++){
+        dijkstra(u,n);
+        for(int v=0;v<n; v++){
+            if(v==u)continue;
+            if(dist[v]==INF){
+                cout<<u<<" to "<<v<<": infinity"<<endl;
             }
+            else cout<<u<<" to "<<v<<": "<<dist[v]<<endl;
         }
     }
 
