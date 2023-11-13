@@ -1,108 +1,98 @@
-#include <iostream>
-#include <vector>
-#include <queue>
-#include <algorithm>
-
+#include <bits/stdc++.h>
 using namespace std;
-
 const int INF = 1e9;
+typedef pair<int, int> pii;
+#define ss second
+#define ff first
 
 struct Edge {
     int u, v, w;
 };
 
-void bellmanFord(vector<Edge>& edges, vector<int>& dist, int src) {
-    int V = dist.size();
-    dist[src] = 0;
+vector<Edge> edges;
+vector<vector<pair<int, int>>> graph;
+vector<int> dist;
+
+void dijkstra(int src, int n){
+
+    dist.assign(n,INF);
+    dist[src]=0; 
+
+    priority_queue<pii,vector<pii>, greater<pii>> min_heap;
+
+    min_heap.push({0,src}); 
+
+    while(!min_heap.empty()){
+        int u=min_heap.top().ss;
+        min_heap.pop();
+
+        for(auto it: graph[u]){
+
+            int v=it.ss;
+            int w=it.ff; 
+            if(dist[v]>dist[u]+w){
+                dist[v]=dist[u]+w; 
+                min_heap.push({dist[v],v});
+            }
+        }
+    }
+
+}
+
+
+vector<int> bellmanFord(int n, int src) {
+    vector<int>h(n,INF);
+    h[src] =0;
+    int V = h.size();
+    h[src] = 0;
 
     for (int i = 0; i < V - 1; ++i) {
         for (const Edge& e : edges) {
-            if (dist[e.u] != INF && dist[e.u] + e.w < dist[e.v]) {
-                dist[e.v] = dist[e.u] + e.w;
+            if (h[e.u] != INF && h[e.u] + e.w < h[e.v]) {
+                h[e.v] = h[e.u] + e.w;
             }
         }
     }
-}
-
-void dijkstra(vector<vector<int>>& graph, vector<int>& dist, int src) {
-    int V = graph.size();
-    priority_queue<pair<int, int>, vector<pair<int, int>>, greater<pair<int, int>>> pq;
-    dist[src] = 0;
-    pq.push({0, src});
-
-    while (!pq.empty()) {
-        int u = pq.top().second;
-        int d = pq.top().first;
-        pq.pop();
-
-        if (d > dist[u]) {
-            continue;
-        }
-
-        for (int v = 0; v < V; ++v) {
-            if (graph[u][v] != INF && dist[u] + graph[u][v] < dist[v]) {
-                dist[v] = dist[u] + graph[u][v];
-                pq.push({dist[v], v});
-            }
-        }
-    }
-}
-
-void johnsonsAlgorithm(vector<vector<int>>& graph) {
-    int V = graph.size();
-    vector<Edge> edges;
-
-    for (int i = 0; i < V; ++i) {
-        edges.push_back({V, i, 0});
-    }
-
-    for (int i = 0; i < V; ++i) {
-        vector<int> dist(V + 1, INF);
-        bellmanFord(edges, dist, V);
-
-        for (int j = 0; j < V; ++j) {
-            if (graph[i][j] != INF) {
-                graph[i][j] = graph[i][j] + dist[i] - dist[j];
-            }
-        }
-    }
-
-    for (int i = 0; i < V; ++i) {
-        vector<int> dist(V, INF);
-        dijkstra(graph, dist, i);
-
-        for (int j = 0; j < V; ++j) {
-            if (dist[j] != INF) {
-                graph[i][j] = dist[j] + dist[j] - dist[i];
-            }
-        }
-    }
+    return h;
 }
 
 int main() {
-    int V, E;
-    cin >> V >> E;
+    int n, m;
+    cin >> n >> m;
+    graph.resize(n + 1);
+    edges.resize(m + 1);
+    dist.assign(n + 1, INF);
 
-    vector<vector<int>> graph(V, vector<int>(V, INF));
-
-    for (int i = 0; i < E; ++i) {
+    for (size_t i = 0; i < m; i++) {
         int u, v, w;
         cin >> u >> v >> w;
-        graph[u][v] = w;
+        edges.push_back({u, v, w});
+        graph[u].push_back({w, v});
     }
 
-    johnsonsAlgorithm(graph);
+    for (size_t i = 1; i < n; i++) {
+        Edge e;
+        e.u=n;
+        e.v=i; e.w=0;
+        edges.push_back(e);
+        graph[n].push_back({0, i});
+    }
 
-    cout << "Shortest distances between all pairs of nodes:" << endl;
-    for (int i = 0; i < V; ++i) {
-        for (int j = 0; j < V; ++j) {
-            if (graph[i][j] == INF) {
-                cout << "INF ";
-            } else {
-                cout << graph[i][j] << " ";
+    vector<int>h=bellmanFord(n+1,n);
+
+    for(auto &edge: edges){
+        edge.w+=h[edge.u]-h[edge.v];
+    }
+
+    for(int u=0;u<n; u++){
+        dijkstra(u,n);
+        for(int v=0;v<n; v++){
+            if(v==u)continue;
+            if(dist[v]==INF){
+                cout<<u<<" to "<<v<<": infinity"<<endl;
             }
+            else cout<<u<<" to "<<v<<": "<<dist[v]<<endl;
         }
-        cout << endl;
     }
 
     return 0;
