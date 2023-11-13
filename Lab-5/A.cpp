@@ -16,6 +16,8 @@ void floydWarshall(vector<vector<int>>& graph, int n) {
     }
 }
 
+// ----------------------------N^3 , and N=100
+
 int main() {
     int n, m; // n = number of nodes, m = number of edges
     cin >> n >> m;
