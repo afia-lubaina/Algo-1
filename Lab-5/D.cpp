@@ -1,7 +1,6 @@
 #include <bits/stdc++.h>
 using namespace std;
 
-using namespace std;
 
 const int INF = 1e9; 
 
@@ -45,7 +44,7 @@ int main() {
     
     bool infi=0;
     int s=0;
-    // Printing the shortest distances
+    
     for (size_t i = 0; i < q-1; i++)
     {
         {
